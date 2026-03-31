@@ -20,7 +20,7 @@ before any document is produced. It:
   (payments, mobile, real-time, Indonesian market, etc.)
 - Detects cross-block contradictions (scale vs infrastructure, scope vs budget, etc.)
 - Runs a mandays reality check before generating output
-- Produces an 11-section Source of Truth document with requirement IDs, traceability,
+- Produces an 12-section Source of Truth document with requirement IDs, traceability,
   Mermaid diagrams, and a dedicated Reference Analysis section
 
 ---
@@ -35,22 +35,26 @@ ai-requirement-analysis/
 ├── references/
 │   ├── interview-flow.md             # Progressive questioning logic & adaptive routing
 │   ├── question-bank.md              # Full question list (tiered) for all 9 blocks
+│   ├── manpower.md                   # Role catalog (11 roles × 3 seniority), IDR rate card, custom reference workflow
+│   ├── mandays.md                    # Complexity tiers (T1–T4), effort tables, progressive estimation, cost projection
+│   ├── session-schema.md             # JSON schema for validation script input
 │   ├── validation-rules.md           # Cross-block conflict matrix & mandays guide
 │   ├── dynamic-followups.md          # Context-triggered follow-up questions by domain
 │   └── output-template.md            # Source of Truth template with ID schemes & Mermaid
 └── scripts/
-    └── validate_requirements.py      # Python validation script
+    ├── validate_requirements.py      # Session validation — validates interview data
+    └── validate_document.py          # Document validation — validates the output .md
 ```
 
 ---
 
 ## Workflow Phases
 
-| Phase | Goal | Key Reference File |
+| Phase | Goal | Key Reference Files |
 |-------|------|-------------------|
-| 1. Detect Context | Determine Path A (doc) or Path B (interview) | SKILL.md |
-| 2. Structured Interview | Gather info across 9 blocks progressively | interview-flow.md, question-bank.md |
-| 3. Validate | Catch cross-block conflicts, run mandays check | validation-rules.md |
+| 1. Detect Context | Determine Path A (doc/ref) or Path B (interview) | SKILL.md |
+| 2. Structured Interview | Gather info across 9 blocks progressively | interview-flow.md, question-bank.md, dynamic-followups.md |
+| 3. Validate | Construct session JSON, run script, catch conflicts | session-schema.md, validation-rules.md, validate_requirements.py |
 | 4. Generate & Review | Produce document, present to user, iterate | output-template.md |
 
 ---
@@ -79,19 +83,20 @@ ai-requirement-analysis/
 
 ### Usage
 
+**Note:** These scripts live in this skill's `scripts/` directory. Run them using
+the full path to the skill directory (e.g., `/mnt/skills/user/ai-requirement-analysis/scripts/`).
+
 ```bash
 # Demo mode (built-in example session)
-python scripts/validate_requirements.py
+python3 {SKILL_DIR}/scripts/validate_requirements.py
 
-# Validate a session file
-python scripts/validate_requirements.py --input session.json
-
-# Save JSON report
-python scripts/validate_requirements.py --input session.json --output report.json
-
-# Quiet mode (JSON only)
-python scripts/validate_requirements.py --input session.json --quiet --output report.json
+# Validate a session file — terminal output
+python3 {SKILL_DIR}/scripts/validate_requirements.py --input /tmp/session.json
 ```
+
+The script outputs results directly to the terminal. JSON report output is available
+via `--output report.json` and `--quiet` flags for CI/CD integration, but the
+standard workflow uses terminal output only.
 
 ### Exit Codes
 - `0` — Validation passed or draft can be generated
@@ -99,104 +104,106 @@ python scripts/validate_requirements.py --input session.json --quiet --output re
 
 ---
 
-## Session JSON Schema
+## Running the Document Validator
 
-The validation script expects a session JSON with the following structure.
-All fields are optional — missing fields are treated as unanswered.
+Use this script to validate a generated or manually edited requirements `.md` file.
+This is the primary tool for **post-edit validation** — when someone changes the
+document outside of a Claude session and needs to verify it's still consistent.
 
-```json
-{
-  "allow_draft_with_gaps": true,
-  "blocks": {
-    "vision": {
-      "answered_questions": 7,
-      "total_applicable_questions": 9,
-      "average_quality_score": 0.85,
-      "deadline_is_fixed": true
-    },
-    "users": {
-      "answered_questions": 8,
-      "total_applicable_questions": 11,
-      "average_quality_score": 0.80,
-      "concurrent_users_peak": 1000,
-      "user_roles": ["admin", "staff", "customer"]
-    },
-    "scope": {
-      "answered_questions": 11,
-      "total_applicable_questions": 13,
-      "average_quality_score": 0.90,
-      "scope_fully_defined": true,
-      "features_mvp": [
-        { "name": "User authentication", "complexity": "medium" },
-        { "name": "Product catalog", "complexity": "medium" }
-      ]
-    },
-    "design": {
-      "answered_questions": 7,
-      "total_applicable_questions": 10,
-      "average_quality_score": 0.75,
-      "design_owner": "in-house designer",
-      "design_delivery_deadline": "2026-04-01"
-    },
-    "integrations": {
-      "answered_questions": 8,
-      "total_applicable_questions": 10,
-      "average_quality_score": 0.85,
-      "third_party_services": ["midtrans", "firebase"],
-      "has_data_migration": false
-    },
-    "security": {
-      "answered_questions": 9,
-      "total_applicable_questions": 11,
-      "average_quality_score": 0.85,
-      "handles_pii": true,
-      "handles_financial_data": false,
-      "compliance_framework": "UU PDP",
-      "auth_method": "username_password"
-    },
-    "technology": {
-      "answered_questions": 9,
-      "total_applicable_questions": 11,
-      "average_quality_score": 0.80,
-      "hosting_type": "AWS EC2 with load balancer",
-      "architecture_style": "monolith",
-      "api_type": "REST",
-      "mobile_platforms": [],
-      "layers_in_scope": ["web_frontend", "backend_api"]
-    },
-    "budget": {
-      "answered_questions": 9,
-      "total_applicable_questions": 11,
-      "average_quality_score": 0.90,
-      "total_mandays_budget": 60,
-      "total_developers": 4,
-      "dedicated_qa": true,
-      "dedicated_devops": false,
-      "contingency_buffer_included": true,
-      "senior_backend_engineers": 2,
-      "senior_frontend_engineers": 1
-    },
-    "post_launch": {
-      "answered_questions": 6,
-      "total_applicable_questions": 10,
-      "average_quality_score": 0.70,
-      "post_launch_owner": "client IT team",
-      "monitoring_strategy": "uptime robot + sentry"
-    }
-  }
-}
+### Requirements
+- Python 3.10+
+- No external dependencies (standard library only)
+
+### Usage
+
+```bash
+# Validate document structure, traceability, and consistency
+python3 {SKILL_DIR}/scripts/validate_document.py --input requirements.md
+
+# Cross-validate against session data (if available)
+python3 {SKILL_DIR}/scripts/validate_document.py --input requirements.md --session session.json
 ```
 
-### Quality Score Guide
+The script outputs results directly to the terminal. This is the command to share
+with users so they can re-validate after manual edits. JSON report output is
+available via `--output` and `--quiet` flags for CI/CD integration.
 
-| Score | Meaning |
-|-------|---------|
-| 1.0 | Specific, measurable, confirmed by user |
-| 0.7 | General but reasonable |
-| 0.4 | Vague or assumed |
-| 0.0 | Unanswered or skipped |
+### What It Checks
 
-### Feature Complexity Guide
+| Code | Check | Severity |
+|------|-------|----------|
+| DOC-MISS | Required section missing from document | Critical |
+| DOC-SCOPE-EST | Feature in MVP scope but not in estimation matrix | Critical |
+| DOC-INT-MISS | Integration referenced in features but missing from Integration Map | Critical |
+| DOC-STATUS | Document marked FINAL but has Critical/High gaps | Critical |
+| DOC-CONF-LOW | Overall confidence below 55% | Critical |
+| DOC-SUB-MISS | Required subsection missing (e.g., 3.4, 4.2, 9.1, 12.2) | Warning |
+| DOC-DIAGRAM | Expected Mermaid diagram missing from section | Warning |
+| DOC-TRACE-FT | Feature has no linked Business Requirement | Warning |
+| DOC-TRACE-BULK | Multiple features missing traceability data | Warning |
+| DOC-GAP-OWNER | Gap has no owner assigned | Warning |
+| DOC-EST-SCOPE | Feature in estimation but not in scope | Warning |
+| DOC-STATUS-GAP | Document marked FINAL but has unresolved gaps | Warning |
+| DOC-IDGAP | ID sequence has gaps (e.g., FT-001, FT-003, no FT-002) | Warning |
+| DOC-CONF-MISS | No confidence scores found | Warning |
+| DOC-TRACE-RSK | Risk not linked to any Feature or Integration | Info |
+| DOC-GAP-PRI | Gap has no priority assigned | Info |
+
+### Cross-Validation Checks (when --session provided)
+
+| Code | Check | Severity |
+|------|-------|----------|
+| XVAL-FT-COUNT | Feature count mismatch between session and document | Warning |
+| XVAL-INT-COUNT | Integration count mismatch | Warning |
+| XVAL-BUDGET | Budget deviation >10% between session and document | Critical |
+
+### Exit Codes
+- `0` — Document passes validation (warnings and info only)
+- `1` — Critical issues found
+
+---
+
+## Two Validation Scripts: When to Use Which
+
+| Script | Input | When to Use | Output |
+|--------|-------|-------------|--------|
+| `validate_requirements.py` | Session JSON (internal) | After interview, before generating document | Terminal only |
+| `validate_document.py` | Requirements .md | After generating document, after every update, OR after manual edits | Terminal only |
+
+**Typical flow:**
+```
+Interview → Session JSON (internal, /tmp) → validate_requirements.py (terminal)
+                                                    ↓
+                                            Generate .md file
+                                                    ↓
+                                     validate_document.py (terminal) ← ALWAYS RUN
+                                                    ↓
+                                            Deliver to team
+                                                    ↓
+                                     User requests changes OR team edits .md
+                                                    ↓
+                                     validate_document.py (terminal) ← RE-RUN
+```
+
+**Key rules:**
+- The session JSON is constructed internally in `/tmp` — it is NOT saved as an output file
+- Both validators output to terminal only — no JSON report files are generated
+- `validate_document.py` runs after EVERY document generation or update
+- Share the `validate_document.py` command with the user for self-service re-validation
+
+---
+
+## Session JSON Schema
+
+The `validate_requirements.py` script expects a session JSON file as input. During
+Phase 3, Claude constructs this JSON internally from data tracked during the interview,
+saves it to `/tmp/session.json`, and runs the script. **The session JSON is not saved
+as an output file** — it is used only for validation and then discarded.
+
+For the full schema with all fields, types, validation triggers, quality scoring guide,
+and a complete construction example, see **`references/session-schema.md`**.
+
+**Quick reference — feature complexity values:**
 
 | Value | Mandays Floor | Example |
 |-------|--------------|---------|

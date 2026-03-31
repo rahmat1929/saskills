@@ -24,11 +24,18 @@ sales team, designers, and engineers can all work from.
 
 ### Option A: You Have Existing Material
 Upload or paste any of the following: a project brief, PRD, meeting notes, feature
-list, RFP, or proposal. The AI will read it, extract everything it can, and then ask
-only the questions your document doesn't answer.
+list, RFP, or proposal. The AI will read it, extract everything it can, and present
+a block-by-block summary of what it found — including what's confirmed, what it
+inferred, and what's missing.
 
-This is faster. If you have a 2-page brief, the AI might only need 15–20 minutes of
-follow-up questions to produce a complete document.
+**Important:** The AI will still walk through all 9 blocks even if your document
+seems comprehensive. Documents often reflect one person's understanding at one point
+in time. The confirmation pass catches outdated info, missing context, and unstated
+assumptions. But it's faster — the AI leads with "here's what I found, is this right?"
+instead of asking from scratch.
+
+If you have a detailed brief, expect 20–40 minutes. A rough feature list might need
+40–60 minutes.
 
 ### Option B: Starting from Scratch
 No preparation needed. The AI will walk you through everything from "what are you
@@ -137,7 +144,7 @@ is finalized.
 
 ## What You Get at the End
 
-A **11-section Source of Truth document** in Markdown:
+A **12-section Source of Truth document** in Markdown:
 
 | Section | For |
 |---------|-----|
@@ -152,6 +159,7 @@ A **11-section Source of Truth document** in Markdown:
 | Mandays Estimation Matrix | PM, Sales |
 | Open Questions & Gaps Log | PM, Sales — resolve before dev |
 | Confidence Score Card | PM, Tech Lead — readiness assessment |
+| Interview Coverage Checklist | Everyone — what's covered, what's not, what's deferred |
 
 Every requirement, feature, risk, and gap has a unique ID for traceability. Complex
 flows include Mermaid diagrams.
