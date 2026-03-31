@@ -1,5 +1,5 @@
 ---
-name: ai-requirement-analysis
+name: requirement-analysis
 description: >
   Conduct deep, structured requirement gathering and analysis for software projects.
   Produces a comprehensive Source of Truth document covering business needs, users,
