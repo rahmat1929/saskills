@@ -46,7 +46,17 @@ Define the boundaries of the system. What is included and — just as importantl
 
 Add all domain-specific terms here. Don't assume the reader knows your jargon.
 
-### 1.4 References
+### 1.4 Codebase Verification Record
+
+This table tracks which codebase state was used to verify implementation status for each FR in this document. Every `Implementation Status` field in Section 3 is relative to the verified branch and date below.
+
+| Branch / Tag | Verified Date | Verified By | Notes |
+|-------------|---------------|-------------|-------|
+| [branch name] | YYYY-MM-DD | [Author] | [e.g., Full FR audit, partial audit of Section 3.2 only] |
+
+> When the codebase changes significantly (major release, large refactor), re-verify affected FRs and add a new row here.
+
+### 1.6 References
 
 List related documents with version numbers and locations.
 
@@ -57,7 +67,7 @@ List related documents with version numbers and locations.
 | Database Design Document | v1.0 | `/docs/DB-Design-ProjectName.md` |
 | Brand Style Guide | v2.1 | `https://brand.example.com` |
 
-### 1.5 Document Conventions
+### 1.7 Document Conventions
 
 Define the requirement language used throughout the document:
 
@@ -172,6 +182,8 @@ Organize features into logical groups. Each feature follows this structure:
 | **Priority** | Must / Should / Could / Won't |
 | **Source** | [PRD section, stakeholder name, or user story] |
 | **Dependencies** | [Other requirement IDs this depends on, or "None"] |
+| **Implementation Status** | ✅ Implemented / ⚠️ Partial / [GAP] Not Implemented |
+| **Verified Against** | [branch name, verification date — e.g., `antiloyalty-release`, 2026-04-17] |
 
 **Acceptance Criteria:**
 - GIVEN [precondition], WHEN [action], THEN [expected result]
@@ -195,6 +207,8 @@ Organize features into logical groups. Each feature follows this structure:
 | **Priority** | Must |
 | **Source** | PRD §2.1, User Story US-001 |
 | **Dependencies** | FR-3.2.1 (Email Verification) |
+| **Implementation Status** | ✅ Implemented |
+| **Verified Against** | `main`, 2026-04-17 |
 
 **Acceptance Criteria:**
 - GIVEN a visitor on the registration page, WHEN they submit a valid email and password meeting complexity requirements (minimum 8 characters, at least 1 uppercase letter, at least 1 number), THEN an account is created in pending state and a verification email is sent
@@ -473,11 +487,30 @@ flowchart TD
 
 Include supplementary material that supports the spec but would clutter the main sections:
 
-- **Appendix A:** System architecture diagram (Mermaid)
-- **Appendix B:** Wireframe references (links to Figma or design tool, not embedded)
-- **Appendix C:** Complete feature interaction map (Mermaid)
-- **Appendix D:** Glossary of business terms
-- **Appendix E:** Competitive analysis or market research (if relevant)
+### Appendix A: Implementation Gap Registry
+
+**Purpose:** Single-source view of every requirement that is not yet fully implemented. Updated whenever code changes close or introduce a gap. This makes the FSD the authoritative reference for "what still needs to be built."
+
+| Gap ID | FR ID | Title | Status | Gap Description | Phase | Resolved In |
+|--------|-------|-------|--------|-----------------|-------|-------------|
+| GAP-001 | FR-3.x.x | [Short title] | ⚠️ Partial / [GAP] Not Implemented | [What specifically is missing from the current implementation] | Phase 1 / 2 / 3 | [Branch or PR when fixed, or "—"] |
+
+**Status legend:**
+- ⚠️ **Partial** — feature exists but is incomplete (e.g., admin side done, mobile side missing)
+- **[GAP]** — requirement not implemented at all
+- ✅ **Resolved** — gap closed; row kept for audit trail with `Resolved In` filled
+
+**How to maintain:**
+- When a gap is closed, update the FR row's `Implementation Status` to ✅ and fill `Resolved In` in this table.
+- When new requirements are added, add them to the FR sections first, then append unimplemented ones here.
+- The Gap Registry is a living record — it should never be empty if the system is incomplete.
+
+---
+
+- **Appendix B:** System architecture diagram (Mermaid)
+- **Appendix C:** Wireframe references (links to Figma or design tool, not embedded)
+- **Appendix D:** Complete feature interaction map (Mermaid)
+- **Appendix E:** Glossary of business terms
 - **Appendix F:** Meeting notes or stakeholder interview transcripts
 
 Note: API endpoint catalogs belong in the API Specification document. Database ERDs belong in the Database Design document. Reference those documents here rather than duplicating their content.
